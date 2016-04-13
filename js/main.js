@@ -6,13 +6,15 @@ var phases = [
 		"title": "Presentation by the Reporter",
 		"duration": 720,
 		"startingtime": 0,
-    "addTimeToNext": false
+    "addTimeToNext": false,
+		"current": true
 	},
 	{
 		"title": "Clarifying questions of the Opponent to the Reporter",
 		"duration": 120,
 		"startingtime": 720,
-    "addTimeToNext": false
+    "addTimeToNext": false,
+		"next": true
 	},
 	{
 		"title": "Preparation of the Opponent",
@@ -94,26 +96,66 @@ var fight = [
   }
 ];
 
-Handlebars.templates["app"] = Handlebars.compile(document.getElementById("app-template"));
-var App = Thorax.View.extend({
-  name: "app"
+var init = function () {
+	Handlebars.templates["app"] = Handlebars.compile(document.getElementById("app-template").innerHTML);
+	Handlebars.templates["fight-manager"] = Handlebars.compile(document.getElementById("fight-manager-template").innerHTML);
 
-});
+	Handlebars.registerHelper('displayTime', function formatTime(totsec) {
+	  if(totsec > 0){
+	    var min = Math.floor(totsec/60);
+	    if(min < 10) min = "0" + String(min);
+	    var sec = totsec%60;
+	    if(sec < 10) sec = "0" + String(sec);
+	    return min + ":" + sec;
+	  }
+	  else return "00:00";
+	});
 
-App.initClock = function () {
+	var FightManager = new Thorax.View({
+		template: Handlebars.templates["fight-manager"],
+		phases: phases,
+		currentTime: 120,
+		duration: 720,
+		currentRound: 2,
+		currentFight: 1,
+		currentStage: 5,
+		isPaused: true,
+		events: {
+			"click [action=previous-phase]" : "prev",
+			"click [action=next-phase]" : "next",
+			"click [action=reset-phase]" : "reset",
+			"click [action=startpause-phase]" : "startpause",
+		},
+		prev: function (e) {
+			alert("hey");
+		},
+		next: function (e) {},
+		reset: function (e) {},
+		startpause: function (e) {
+			this.isPaused = !this.isPaused;
+			this.render();
+		}
+	});
 
+	var App = new Thorax.LayoutView({
+		template: Handlebars.templates["app"],
+		items: [
+			{
+				active: true,
+				title: "Fight Manager"
+			},
+			{
+				active: false,
+				title: "Settings"
+			}
+		]
+	});
+
+	App.appendTo("body");
+	App.setView(FightManager);
 };
 
-App.pause = function () {
-
-};
-
-App.startFight = function (fight) {
-  this._fight = fight;
-  this.currentStage = 0;
-  this.currentPhase = 0;
-  this.initClock();
-};
+document.addEventListener("DOMContentLoaded", init);
 
 
 function startFight(){
@@ -173,7 +215,7 @@ function openClockWindow(){
 
   */
 }
-window.onload = function(){
+var oldOnLoad = function(){
   var inputs = document.getElementsByTagName("input");
   for(i = 0; i < inputs.length; i++){
     inputs[i].value = "";

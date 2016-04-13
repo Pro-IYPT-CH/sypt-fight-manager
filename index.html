@@ -8,12 +8,70 @@
 	<script src="js/phases.js"></script>
 	<script src="js/main.js"></script>
 	<script id="app-template" type="text/template">
-
+			<div id="logo">
+	      <img src="http://www.sypt.ch/resources/LogoSYPT.jpg" />
+	    </div>
+	    <div class="ui pointing menu">
+				{{#each items}}
+					{{#if active}}
+			      <a class="active item">
+			        {{title}}
+			      </a>
+					{{else}}
+			      <a class="item">
+			        {{title}}
+			      </a>
+					{{/if}}
+				{{/each}}
+	    </div>
+			{{layout-element}}
 	</script>
+
+	<script id="fight-manager-template" type="text/template">
+		<div id="app-container" class="ui segments">
+			<div class="ui segment">
+				<div id="clock">
+					<p>{{displayTime currentTime}} of {{displayTime duration}}</p>
+				</div>
+				<div id="information">
+					<p>Round {{currentRound}} // Fight {{currentFight}} // Stage {{currentStage}}</p>
+				</div>
+			</div>
+			<div class="ui segment">
+				<ul id="phases">
+						{{#each phases}}
+							<li class="phase {{#if current}}current{{/if}} {{#if next}}next{{/if}} ui segment">
+								<p class="title">{{title}}</p>
+								{{#if current}}<div class="progress"></div>{{/if}}
+							</li>
+						{{/each}}
+				</ul>
+			</div>
+			<div id="toolbar" class="ui center aligned segment">
+				<button class="ui labeled icon button" action="previous-phase">
+					<i class="step backward icon"></i>
+					Previous
+				</button>
+				<button class="ui labeled icon button" action="previous-phase">
+					<i class="undo icon"></i>
+					Reset
+				</button>
+				<button class="ui labeled icon button" action="startpause-phase">
+					{{#if isPaused}}<i class="play icon"></i>{{else}} <i class="pause icon"></i> {{/if}}
+					{{#if isPaused}} Start {{else}} Pause {{/if}}
+				</button>
+				<button class="ui labeled icon button" action="next-phase">
+					<i class="step forward icon"></i>
+					Next
+				</button>
+			</div>
+		</div>
+	</script>
+
 </head>
 <body>
+	<!--
 	<div>
-
 		<div id="startButtonDiv" style="">
 			<h1>Fight Clock Manager</h1>
 			<input type="text" id="fightInput" placeholder="Fight ID" />
@@ -62,6 +120,6 @@
 			</p>
 			<p><button onclick="resetAll();">Reset Fight</button></p>
 		</div>
-	</div>
+	</div>-->
 </body>
 </html>
