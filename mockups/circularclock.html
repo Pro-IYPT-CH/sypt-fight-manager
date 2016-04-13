@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../css/semantic.min.css" media="screen" title="no title" charset="utf-8">
+    <script src="../js/thorax.min.js"></script>
+    <title>Circular Clock</title>
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", function () {
+
+        var MockupData = new Thorax.Model({
+          currentTime: 20,
+          duration: 500
+        });
+        var CircularClock = Thorax.View.extend({
+          tagName: "div",
+          initialize: function () {
+
+          },
+          model: MockupData,
+          render: function () {
+
+          }
+        });
+
+        var clock = new CircularClock();
+        clock.appendTo(document.body);
+      });
+    </script>
+  </head>
+  <body>
+
+  </body>
+</html>
