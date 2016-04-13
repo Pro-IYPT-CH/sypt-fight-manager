@@ -26,12 +26,15 @@
 	    </div>
 			{{layout-element}}
 	</script>
+	<script id="clock-template" type="text/template">
+			<div id="clock">
+				<p>{{displayTime currentTime}} of {{displayTime remainingPhases.[0].duration}} {{#ifCond currentOvertime 0}} {{else}}{{#if isOvertime}}<span class="overtime">{{displayTime currentOvertime}}</span>{{/if}}{{/ifCond}}</p>
+			</div>
+	</script>
 	<script id="fight-manager-template" type="text/template">
 		<div id="app-container" class="ui segments">
 			<div class="ui segment">
-				<div id="clock">
-					<p>{{displayTime currentTime}} of {{displayTime remainingPhases.[0].duration}} {{#ifCond currentOvertime 0}} {{else}}{{#if isOvertime}}<span class="overtime">{{displayTime currentOvertime}}</span>{{/if}}{{/ifCond}}</p>
-				</div>
+				{{view clock}}
 				<div id="information">
 					<p>Round {{currentRound}} // Fight {{currentFight}} // Stage {{currentStage.id}}</p>
 				</div>
