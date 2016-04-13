@@ -7,6 +7,7 @@
 	<script src="js/thorax.min.js"></script>
 	<script src="js/phases.js"></script>
 	<script src="js/main.js"></script>
+	<meta charset="UTF-8" />
 	<script id="app-template" type="text/template">
 			<div id="logo">
 	      <img src="http://www.sypt.ch/resources/LogoSYPT.jpg" />
@@ -42,7 +43,9 @@
 						{{#ifCond @index 0}}
 							<li class="phase current ui segment">
 								<p class="title">{{title}}</p>
-								<div class="progress"></div>
+								<div class="progress">
+									<canvas id="progressbar">Your browser does not support canvas.</canvas>
+								</div>
 							</li>
 						{{else}}
 							<li class="phase {{#ifCond @index 1}} next {{/ifCond}} ui segment">

@@ -234,3 +234,17 @@ var init = function () {
 };
 
 document.addEventListener("DOMContentLoaded", init);
+
+function drawProgress(currentTime, duration){
+	var perc = currentTime/duration;
+	var canvas = document.getElementById("progressbar");
+	canvas.height = canvas.parentElement.offsetHeight;
+	canvas.width = canvas.parentElement.offsetWidth;
+	var ctx = canvas.getContext("2d");
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.beginPath();
+	ctx.rect(0, 0, perc * canvas.width, canvas.height);
+	ctx.fillStyle = "red";
+	ctx.fill();
+	ctx.closePath();
+}
