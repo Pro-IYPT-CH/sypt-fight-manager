@@ -250,7 +250,6 @@ var init = function () {
 };
 
 document.addEventListener("DOMContentLoaded", init);
-<<<<<<< HEAD
 
 function drawProgress(currentTime, duration){
 	var perc = currentTime/duration;
@@ -265,5 +264,3 @@ function drawProgress(currentTime, duration){
 	ctx.fill();
 	ctx.closePath();
 }
-=======
->>>>>>> origin/master
