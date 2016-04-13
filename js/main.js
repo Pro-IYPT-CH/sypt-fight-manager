@@ -90,6 +90,8 @@ var fight = {
 var init = function () {
 	Handlebars.templates["app"] = Handlebars.compile(document.getElementById("app-template").innerHTML);
 	Handlebars.templates["fight-manager"] = Handlebars.compile(document.getElementById("fight-manager-template").innerHTML);
+	Handlebars.templates["clock"] = Handlebars.compile(document.getElementById("clock-template").innerHTML);
+
 	Handlebars.registerHelper('ifCond', function(v1, v2, options) {
 	  if(v1 === v2) {
 	    return options.fn(this);
@@ -182,14 +184,28 @@ var init = function () {
 			}
 		}
 	});
-
 	window.testfight = new Fight(fight);
+
+	var ClockView = Thorax.View.extend({
+		template: Handlebars.templates["clock"]
+	});
+
+	var ProgressView = Thorax.View.extend({
+		initialize: function () {
+			this.render();
+		},
+		tagName: "canvas",
+		render: function () {
+
+		}
+	});
 
 	window.FightManager = new Thorax.View({
 		initialize: function () {
 			this.listenTo(this.model, "next:phase", this.render);
 		},
 		model: testfight,
+		clock: new ClockView(),
 		template: Handlebars.templates["fight-manager"],
 		events: {
 			"click [action=previous-phase]" : "previousPhase",
@@ -234,6 +250,7 @@ var init = function () {
 };
 
 document.addEventListener("DOMContentLoaded", init);
+<<<<<<< HEAD
 
 function drawProgress(currentTime, duration){
 	var perc = currentTime/duration;
@@ -248,3 +265,5 @@ function drawProgress(currentTime, duration){
 	ctx.fill();
 	ctx.closePath();
 }
+=======
+>>>>>>> origin/master
