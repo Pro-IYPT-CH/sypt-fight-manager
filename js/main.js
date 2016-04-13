@@ -190,6 +190,16 @@ var init = function () {
 		template: Handlebars.templates["clock"]
 	});
 
+	var ProgressView = Thorax.View.extend({
+		initialize: function () {
+			this.render();
+		},
+		tagName: "canvas",
+		render: function () {
+
+		}
+	});
+
 	window.FightManager = new Thorax.View({
 		initialize: function () {
 			this.listenTo(this.model, "next:phase", this.render);
