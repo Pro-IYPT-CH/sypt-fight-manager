@@ -123,12 +123,21 @@ ul {
 	font-weight: bold;
 }
 
+#clock p .overtime {
+    font-size: 2.5rem;
+    color: #AB0000;
+}
+
+#clock p .overtime:before {
+    content: "+";
+}
+
 #information p {
 	font-size: 1.25rem;
 }
 
 #phases {
-		max-height: 40vh;
+		height: 40vh;
 		overflow: hidden;
 		position: relative;
 }

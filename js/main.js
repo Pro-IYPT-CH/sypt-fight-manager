@@ -5,100 +5,97 @@ var phases = [
 	{
 		"title": "Presentation by the Reporter",
 		"duration": 720,
-		"startingtime": 0,
-    "addTimeToNext": false,
-		"current": true
+    "keepTimeFromLast": false
 	},
 	{
 		"title": "Clarifying questions of the Opponent to the Reporter",
 		"duration": 120,
-		"startingtime": 720,
-    "addTimeToNext": false,
-		"next": true
+    "keepTimeFromLast": false
 	},
 	{
 		"title": "Preparation of the Opponent",
 		"duration": 180,
-		"startingtime": 840,
-    "addTimeToNext": false
+    "keepTimeFromLast": false
 	},
 	{
 		"title": "Presentation of the Opposition",
 		"duration": 300,
-		"startingtime": 1020,
-    "addTimeToNext": true
+    "keepTimeFromLast": false
 	},
 	{
 		"title": "Discussion between Opponent and Reporter",
 		"duration": 360,
-		"startingtime": 1320,
-    "addTimeToNext": false
+    "keepTimeFromLast": true
 	},
 	{
 		"title": "Summary of the discussion by the Opponent",
 		"duration": 60,
-		"startingtime": 1680,
-    "addTimeToNext": false
+    "keepTimeFromLast": false
 	},
 	{
 		"title": "Clarifying questions of the Reviewer to Reporter and Opponent",
 		"duration": 180,
-		"startingtime": 1740,
-    "addTimeToNext": false
+    "keepTimeFromLast": false
 	},
 	{
 		"title": "Preparation of the Reviewer",
 		"duration": 120,
-		"startingtime": 1920,
-    "addTimeToNext": false
+    "keepTimeFromLast": false
 	},
 	{
 		"title": "Presentation of the Review",
 		"duration": 240,
-		"startingtime": 2040,
-    "addTimeToNext": false
+    "keepTimeFromLast": false
 	},
 	{
 		"title": "Concluding remarks by the Reporter",
 		"duration": 120,
-		"startingtime": 2280,
-    "addTimeToNext": false
+    "keepTimeFromLast": false
 	},
 	{
 		"title": "Questions of the Jury to all three teams",
 		"duration": 300,
-		"startingtime": 2400,
-    "addTimeToNext": false
+    "keepTimeFromLast": false
 	}
 ];
 
-var fight = [
-  {
-    title: "Stage 1",
-    reporter: "John Smith",
-    opponent: "Bob Dylan",
-    reviewer: "Jane Doe",
-    phases: phases
-  },
-  {
-    title: "Stage 2",
-    opponent: "John Smith",
-    reporter: "Bob Dylan",
-    reviewer: "Jane Doe",
-    phases: phases
-  },
-  {
-    title: "Stage 3",
-    reviewer: "John Smith",
-    opponent: "Bob Dylan",
-    reporter: "Jane Doe",
-    phases: phases
-  }
-];
+var fight = {
+	round: 2,
+	id: 1,
+	stages: [
+		{
+	    id: 1,
+	    reporter: "John Smith",
+	    opponent: "Bob Dylan",
+	    reviewer: "Jane Doe",
+	    phases: phases
+	  },
+	  {
+	    id: 2,
+	    opponent: "John Smith",
+	    reporter: "Bob Dylan",
+	    reviewer: "Jane Doe",
+	    phases: phases
+	  },
+	  {
+	    id: 3,
+	    reviewer: "John Smith",
+	    opponent: "Bob Dylan",
+	    reporter: "Jane Doe",
+	    phases: phases
+	  }
+	]
+};
 
 var init = function () {
 	Handlebars.templates["app"] = Handlebars.compile(document.getElementById("app-template").innerHTML);
 	Handlebars.templates["fight-manager"] = Handlebars.compile(document.getElementById("fight-manager-template").innerHTML);
+	Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+	  if(v1 === v2) {
+	    return options.fn(this);
+	  }
+	  return options.inverse(this);
+	});
 
 	Handlebars.registerHelper('displayTime', function formatTime(totsec) {
 	  if(totsec > 0){
@@ -111,29 +108,110 @@ var init = function () {
 	  else return "00:00";
 	});
 
-	var FightManager = new Thorax.View({
+	var Fight = Thorax.Model.extend({
+		initialize: function (fight) {
+			this.attributes.currentRound = fight.round;
+			this.attributes.currentFight = fight.id;
+			this.attributes.currentStage = fight.stages[0];
+			this.attributes.pastPhases = [];
+			this.attributes.remainingPhases = fight.stages[0].phases;
+
+			this.attributes.currentTime = 0;
+			this.attributes.currentOvertime = 0;
+			this.attributes.isPaused = true;
+			this.attributes.isOvertime = false;
+
+			this.on("previous:phase", this.resetPhase);
+			this.on("next:phase", this.resetPhase);
+		},
+		tick: function () {
+			if (this.get("isOvertime") === false) {
+				this.set("currentTime", this.get("currentTime") + 1);
+			} else {
+				this.set("currentOvertime", this.get("currentOvertime") + 1);
+			}
+			console.log(this.attributes.currentTime, this.attributes.isOvertime, this.attributes.currentOvertime)
+		},
+		overtime: function () {
+			if (this.get("remainingPhases")[1].keepTimeFromLast) {
+				this.nextPhase();
+			} else {
+				this.set("isOvertime", true);
+			}
+		},
+		startClock: function () {
+			this.interval = setInterval(this.tick.bind(this), 1000);
+			this.timeout = setTimeout(this.overtime.bind(this), this.get("remainingPhases")[0].duration*1000 - this.get("currentTime"));
+			this.set("isPaused", false);
+		},
+		pauseClock: function () {
+			clearInterval(this.interval);
+			clearTimeout(this.timeout);
+			this.set("isPaused", true);
+		},
+		switchClock: function () {},
+		resetPhase: function () {
+			this.set("currentTime", 0);
+			this.set("isOvertime", false);
+			this.set("currentOvertime", 0);
+		},
+		nextPhase: function () {
+			if (this.get("remainingPhases").length > 1) {
+				// Don't try to understand the next line! It just works!
+				this.set("pastPhases", this.get("pastPhases").concat(this.get("remainingPhases").shift()));
+				if (this.get("remainingPhases")[0].keepTimeFromLast) {
+					var pastPhases = this.get("pastPhases");
+					this.attributes.remainingPhases[0].originalDuration = this.attributes.remainingPhases[0].duration;
+					this.get("remainingPhases")[0].duration += (pastPhases[pastPhases.length-1].duration - this.get("currentTime"));
+				}
+				this.trigger("next:phase");
+			} else {
+				// Tell user there are no more phases
+			}
+		},
+		previousPhase: function () {
+			if (this.get("pastPhases").length > 0) {
+				// Don't try to understand the next line! It just works!
+				if (this.get("remainingPhases")[0].keepTimeFromLast) {
+					this.attributes.remainingPhases[0].duration = this.attributes.remainingPhases[0].originalDuration;
+				}
+				this.set("remainingPhases", [this.get("pastPhases").pop()].concat(this.get("remainingPhases")));
+				this.trigger("previous:phase");
+			} else {
+				// Tell user there are no more phases
+			}
+		}
+	});
+
+	window.testfight = new Fight(fight);
+
+	window.FightManager = new Thorax.View({
+		initialize: function () {
+			this.listenTo(this.model, "next:phase", this.render);
+		},
+		model: testfight,
 		template: Handlebars.templates["fight-manager"],
-		phases: phases,
-		currentTime: 120,
-		duration: 720,
-		currentRound: 2,
-		currentFight: 1,
-		currentStage: 5,
-		isPaused: true,
 		events: {
-			"click [action=previous-phase]" : "prev",
-			"click [action=next-phase]" : "next",
-			"click [action=reset-phase]" : "reset",
-			"click [action=startpause-phase]" : "startpause",
+			"click [action=previous-phase]" : "previousPhase",
+			"click [action=next-phase]" : "nextPhase",
+			"click [action=reset-phase]" : "resetPhase",
+			"click [action=switchclock]" : "switchClock",
 		},
-		prev: function (e) {
-			alert("hey");
+		previousPhase: function (e) {
+			this.model.previousPhase();
 		},
-		next: function (e) {},
-		reset: function (e) {},
-		startpause: function (e) {
-			this.isPaused = !this.isPaused;
-			this.render();
+		nextPhase: function (e) {
+			this.model.nextPhase();
+		},
+		switchClock: function (e) {
+			if (this.model.get("isPaused") === true) {
+				this.model.startClock();
+			} else {
+				this.model.pauseClock();
+			}
+		},
+		resetPhase: function (e) {
+			this.model.resetPhase();
 		}
 	});
 

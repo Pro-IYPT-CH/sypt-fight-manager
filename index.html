@@ -31,20 +31,26 @@
 		<div id="app-container" class="ui segments">
 			<div class="ui segment">
 				<div id="clock">
-					<p>{{displayTime currentTime}} of {{displayTime duration}}</p>
+					<p>{{displayTime currentTime}} of {{displayTime remainingPhases.[0].duration}} {{#ifCond currentOvertime 0}} {{else}}{{#if isOvertime}}<span class="overtime">{{displayTime currentOvertime}}</span>{{/if}}{{/ifCond}}</p>
 				</div>
 				<div id="information">
-					<p>Round {{currentRound}} // Fight {{currentFight}} // Stage {{currentStage}}</p>
+					<p>Round {{currentRound}} // Fight {{currentFight}} // Stage {{currentStage.id}}</p>
 				</div>
 			</div>
 			<div class="ui segment">
 				<ul id="phases">
-						{{#each phases}}
-							<li class="phase {{#if current}}current{{/if}} {{#if next}}next{{/if}} ui segment">
+					{{#each remainingPhases}}
+						{{#ifCond @index 0}}
+							<li class="phase current ui segment">
 								<p class="title">{{title}}</p>
-								{{#if current}}<div class="progress"></div>{{/if}}
+								<div class="progress"></div>
 							</li>
-						{{/each}}
+						{{else}}
+							<li class="phase {{#ifCond @index 1}} next {{/ifCond}} ui segment">
+								<p class="title">{{title}}</p>
+							</li>
+						{{/ifCond}}
+					{{/each}}
 				</ul>
 			</div>
 			<div id="toolbar" class="ui center aligned segment">
@@ -52,11 +58,11 @@
 					<i class="step backward icon"></i>
 					Previous
 				</button>
-				<button class="ui labeled icon button" action="previous-phase">
+				<button class="ui labeled icon button" action="reset-phase">
 					<i class="undo icon"></i>
 					Reset
 				</button>
-				<button class="ui labeled icon button" action="startpause-phase">
+				<button class="ui labeled icon button" action="switchclock">
 					{{#if isPaused}}<i class="play icon"></i>{{else}} <i class="pause icon"></i> {{/if}}
 					{{#if isPaused}} Start {{else}} Pause {{/if}}
 				</button>
