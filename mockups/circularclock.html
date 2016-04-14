@@ -4,31 +4,71 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="../css/semantic.min.css" media="screen" title="no title" charset="utf-8">
     <script src="../js/thorax.min.js"></script>
+    <script src="../js/raphael.min.js"></script>
     <title>Circular Clock</title>
+    <style media="screen">
+      #clock {
+        height:100vh;
+      }
+    </style>
     <script type="text/javascript">
       document.addEventListener("DOMContentLoaded", function () {
-
-        var MockupData = new Thorax.Model({
-          currentTime: 20,
-          duration: 500
-        });
-        var CircularClock = Thorax.View.extend({
-          tagName: "div",
-          initialize: function () {
-
-          },
-          model: MockupData,
-          render: function () {
-
-          }
-        });
-
-        var clock = new CircularClock();
         clock.appendTo(document.body);
       });
+
+      //Thorax Model
+      var MockupData = new Thorax.Model({
+        currentTime: 62,
+        duration: 720
+      });
+
+      //Thorax View
+      var CircularClock = Thorax.View.extend({
+        initialize: function () {
+
+        },
+        model: MockupData,
+        render: function () {
+          this.el.innerHTML = "<p>" + this.model.get("currentTime") + "</p><p>You can set the currentTime and duration with console command 'MockupData.set();'</p><p>Make sure to use command 'clock.render();' to re-render the clock.</p>";
+          var perc = this.model.get("currentTime")/this.model.get("duration");
+          var height = 500;
+          var width = 500;
+          var strokewidth = 10;
+
+          var centerx = width/2;
+          var centery = height/2;
+          var center = [centerx, centery];
+
+          //Calculate path
+          var startAngle = 0 - 90;
+          var endAngle = perc*360 - 90;
+          var radius = centerx-strokewidth/2;
+          var angle = startAngle;
+          var coords = toCoordsFromAngle(angle);
+          var path = "M " + coords[0] + " " + coords[1];
+          while(angle<=endAngle) {
+              coords = toCoordsFromAngle(angle);
+              path += " L " + coords[0] + " " + coords[1];
+              angle += 1;
+          }
+          function toCoordsFromAngle(angle) {
+              var radians = (angle/180) * Math.PI;
+              var x = center[0] + Math.cos(radians) * radius;
+              var y = center[1] + Math.sin(radians) * radius;
+              return [x, y];
+          }
+          
+          //
+          var paper = Raphael(0, 100, width, height);
+          var arc = paper.path(path);
+          arc.attr("stroke-width", strokewidth);
+          if(perc >= 0.75) arc.attr("stroke", "firebrick");
+          else arc.attr("stroke", "blue");
+        }
+      });
+      var clock = new CircularClock();
     </script>
   </head>
   <body>
-
   </body>
 </html>
